@@ -15,30 +15,32 @@ labels = ["Lancar", "Sedang", "Macet"]
 # LOAD ATAU TRAIN MODEL
 # =========================
 if os.path.exists("model.h5") and os.path.exists("scaler.pkl"):
+    print("✅ Load model dari file")
     model = load_model("model.h5")
     scaler = joblib.load("scaler.pkl")
 else:
     print("⚠️ Model tidak ditemukan, training ulang...")
 
-    # DATA LATIH SEDERHANA
+    # DATA LATIH (LEBIH MASUK AKAL)
     X = np.array([
-        [10, 1000],
+        [5, 500],
+        [20, 1000],
         [50, 2000],
-        [150, 3000],
-        [300, 5000],
-        [20, 800],
-        [80, 2500],
+        [100, 3000],
         [200, 4000],
+        [300, 6000],
+        [500, 8000]
     ])
 
-    y = np.array([0, 0, 1, 2, 0, 1, 2])  # 0=lancar,1=sedang,2=macet
+    y = np.array([0, 0, 1, 1, 2, 2, 2])  # 0=lancar,1=sedang,2=macet
 
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
 
+    # MODEL BACKPROPAGATION
     model = Sequential([
-        Dense(10, activation='relu', input_shape=(2,)),
-        Dense(5, activation='relu'),
+        Dense(16, activation='relu', input_shape=(2,)),
+        Dense(8, activation='relu'),
         Dense(3, activation='softmax')
     ])
 
@@ -48,7 +50,13 @@ else:
         metrics=['accuracy']
     )
 
-    model.fit(X_scaled, y, epochs=100, verbose=0)
+    model.fit(X_scaled, y, epochs=150, verbose=0)
+
+    # SIMPAN MODEL (WAJIB)
+    model.save("model.h5")
+    joblib.dump(scaler, "scaler.pkl")
+
+    print("✅ Model berhasil dibuat & disimpan")
 
 # =========================
 # ROUTE
@@ -75,7 +83,7 @@ def predict():
     hasil_model = np.argmax(pred)
 
     # =========================
-    # LOGIKA TAMBAHAN
+    # LOGIKA TAMBAHAN BIAR REALISTIS
     # =========================
     if kepadatan < 50:
         hasil_logika = 0
